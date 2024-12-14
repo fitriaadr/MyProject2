@@ -1,0 +1,38 @@
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Welcome, {{ request.user.username }}</h1>
+
+        <div class="mt-5">
+            <h2 class="mb-4">Menu</h2>
+            <div class="list-group">
+                <a href="{% url 'user_profile' %}" class="list-group-item list-group-item-action">
+                    Informasi Profil
+                </a>
+                <a href="{% url 'contact_admin' %}" class="list-group-item list-group-item-action">
+                    Hubungi Admin
+                </a>
+                <a href="{% url 'notification_list' %}" class="list-group-item list-group-item-action">
+                    Notifikasi
+                </a>
+                <a href="{% url 'vegetable_guide' %}" class="list-group-item list-group-item-action">
+                    Vegetable Guide
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>

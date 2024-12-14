@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ vegetable.name }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h1 class="card-title text-center text-success">{{ vegetable.name }}</h1>
+                        <div class="text-center my-4">
+                            <img src="{{ vegetable.image.url }}" alt="{{ vegetable.name }}" class="img-fluid rounded" style="max-width: 300px;">
+                        </div>
+                        <p class="card-text text-justify">{{ vegetable.description }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="text-center">Menu Terkait</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="{% url 'planting_guide' vegetable.id %}" class="text-decoration-none text-primary">Panduan Menanam</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="{% url 'care_guide' vegetable.id %}" class="text-decoration-none text-primary">Panduan Perawatan</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="{% url 'calculate_seeds' vegetable.id %}" class="text-decoration-none text-primary">Kalkulator Kebutuhan Bibit</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="{% url 'price_list' vegetable.id %}" class="text-decoration-none text-primary">Informasi Harga</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'vegetable_guide' %}" class="btn btn-secondary">Kembali ke Vegetable Guide</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>

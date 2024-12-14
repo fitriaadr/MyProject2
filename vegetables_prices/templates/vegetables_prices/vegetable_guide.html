@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vegetable Guide</title>
+    {% load static %}
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Vegetable Guide</h1>
+
+        {% if vegetables %}
+        <div class="row">
+            {% for vegetable in vegetables %}
+            <div class="col-6 col-sm-4 col-md-3 text-center mb-4">
+                <a href="{% url 'vegetable_detail' vegetable.id %}" class="text-decoration-none">
+                    {% if vegetable.image %}
+                        <img src="{{ vegetable.image.url }}" alt="{{ vegetable.name }}" class="img-thumbnail" style="width: 100px; height: auto;">
+                    {% else %}
+                        <img src="{% static 'images/default_vegetable.jpg' %}" alt="Default Image" class="img-thumbnail" style="width: 100px; height: auto;">
+                    {% endif %}
+                    <p class="mt-2 text-dark">{{ vegetable.name }}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-muted">No vegetables available at the moment.</p>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Kembali ke Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Harga Sayur</title>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Daftar Harga Sayur</h1>
+
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nama Sayur</th>
+                    <th>Harga</th>
+                    <th>Tanggal</th>
+                    {% if user.is_superuser %}
+                    <th>Aksi</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for price in prices %}
+                <tr>
+                    <td>{{ price.name }}</td>
+                    <td>{{ price.price }}</td>
+                    <td>{{ price.date }}</td>
+                    {% if user.is_superuser %}
+                    <td>
+                        <a href="{% url 'delete_price' price.id %}" class="btn btn-danger btn-sm">Hapus</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Navigasi Pagination -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if prices.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ prices.previous_page_number }}">Sebelumnya</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">Halaman {{ prices.number }} dari {{ prices.paginator.num_pages }}</span>
+                </li>
+
+                {% if prices.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ prices.next_page_number }}">Berikutnya</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>
