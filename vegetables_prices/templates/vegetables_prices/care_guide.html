@@ -7,22 +7,103 @@
     <title>Panduan Perawatan</title>
     <!-- Bootstrap CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body {
+            position: relative;
+            background: url('{% static "images/hero-background.jpg" %}') no-repeat center center / cover fixed;
+            font-family: Arial, sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Overlay gelap */
+            z-index: -1; /* Meletakkan overlay di belakang konten */
+        }
+
+        /* Container Styling */
+        .container {
+            margin-top: 50px;
+        }
+        .navbar-nav .nav-link {
+        color: #333; /* Warna default */
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #28a745; /* Warna hijau saat di-hover */
+        background-color: #f8f9fa; /* Background abu terang saat di-hover */
+        border-radius: 5px; /* Membuat sudut membulat */
+    }
+
+    /* Active Link Styling */
+    .navbar-nav .nav-link.active {
+        color: #28a745; /* Warna hijau untuk link aktif */
+        font-weight: bold;
+    }
+    </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+    <div class="container-fluid">
+        <!-- Brand Logo -->
+        <a class="navbar-brand" href="#" style="color: #28a745; font-weight: bold;">SAVOGREEN</a>
+        <!-- Navbar Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'user_dashboard' %}">DASHBOARD</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact_admin' %}">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vegetable_guide' %}">Vegetable Guide</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h1 class="text-center">Panduan Perawatan</h1>
+                        <h1 class="text-center">Care Guide</h1>
                     </div>
                     <div class="card-body">
-                        <h2 class="text-center mb-4">Perawatan untuk <strong>{{ vegetable.name }}</strong></h2>
-                        <p class="text-center text-muted">Informasi perawatan akan ditambahkan oleh admin.</p>
-                    </div>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{% url 'vegetable_guide' %}" class="btn btn-secondary">Kembali ke Panduan Sayuran</a>
+                        <h2 class="text-center mb-4">
+                            <strong>{{ vegetable.name }}</strong>
+                        </h2>
+                        {% if care_guide %}
+                            <p class="text-justify">{{ care_guide.content }}</p>
+                        {% else %}
+                            <div class="alert alert-warning text-center">
+                                Care guide doesn't uploaded yet.
+                            </div>
+                        {% endif %}
+                    <div class="text-center mt-4">
+                        <a href="{% url 'vegetable_detail' pk=vegetable.id %}" class="btn btn-secondary">Back</a>
+                     </div>
                 </div>
             </div>
         </div>

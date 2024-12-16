@@ -137,3 +137,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'  # URL yang dituju jika user belum login
 AUTH_USER_MODEL = 'users.User'
+

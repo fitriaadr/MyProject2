@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Perhitungan Penanaman</title>
+</head>
+<body>
+    <h1>Hasil Perhitungan Penanaman</h1>
+    <p>Sayuran: {{ vegetable.name }}</p>
+    <p>Luas Lahan: {{ area_size }} m²</p>
+    <p>Jarak Tanam: {{ planting_distance }} cm</p>
+    <p>Total Bibit yang Dibutuhkan: {{ total_seeds }} bibit</p>
+    <a href="{% url 'planting_calculator' %}">Kembali</a>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Sayur</title>
+</head>
+<body>
+    <h1>Daftar Sayur</h1>
+    <ul>
+        {% for vegetable in vegetables %}
+            <li>
+                <a href="{% url 'vegetable_detail' vegetable.pk %}">{{ vegetable.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'vegetable_create' %}">Tambah Sayur Baru</a>
+</body>
+</html>

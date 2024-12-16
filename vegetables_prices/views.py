@@ -1,127 +1,99 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from .models import Vegetable, VegetablePrice, PlantingGuide, CareGuide
-from django.contrib import messages
-from .forms import VegetablePriceForm
+from .forms import VegetableForm, VegetablePriceForm, PlantingCalculatorForm
+from django.urls import reverse_lazy
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.core.paginator import EmptyPage, PageNotAnInteger
-import os
 
-def vegetable_detail(request, vegetable_id):
+class VegetableCreateView(CreateView):
+    model = Vegetable
+    form_class = VegetableForm
+    template_name = 'vegetables_prices/vegetable_form.html'
+    success_url = reverse_lazy('vegetable_list')
+
+class VegetableUpdateView(UpdateView):
+    model = Vegetable
+    form_class = VegetableForm
+    template_name = 'vegetables_prices/vegetable_form.html'
+    success_url = reverse_lazy('vegetable_list')
+
+class VegetableListView(ListView):
+    model = Vegetable
+    template_name = 'vegetables_prices/vegetable_list.html'
+    context_object_name = 'vegetables'
+
+class VegetableDetailView(DetailView):
+    model = Vegetable
+    template_name = 'vegetables_prices/vegetable_detail.html'
+    context_object_name = 'vegetable'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vegetables'] = Vegetable.objects.all()
+        vegetable = context['vegetable']
+        price = VegetablePrice.objects.filter(vegetable=vegetable).first()
+        context['price'] = price
+        return context
+
+class VegetablePriceCreateView(CreateView):
+    model = VegetablePrice
+    form_class = VegetablePriceForm
+    template_name = 'vegetables_prices/vegetable_price_form.html'
+    success_url = reverse_lazy('vegetable_list')
+
+def calculate_seed(request, vegetable_id):
     vegetable = get_object_or_404(Vegetable, id=vegetable_id)
-    planting = PlantingGuide.objects.filter(vegetable=vegetable).first()
-    care = CareGuide.objects.filter(vegetable=vegetable).first()
 
-    return render(request, 'vegetables_prices/vegetable_detail.html', {
-        'vegetable': vegetable,
-        'planting_guide': planting,
-        'care_guide': care,
-    })
-
-@login_required
-def vegetable_guide(request):
-    from django.conf import settings
-    print("Base directory:", settings.BASE_DIR)
-    print("Looking for template at:",
-          os.path.join(settings.BASE_DIR, 'vegetables_prices/templates/vegetables_prices/vegetable_guide.html'))
-
-    vegetables = Vegetable.objects.all()
-    return render(request, 'vegetables_prices/vegetable_guide.html', {'vegetables': vegetables})
-
-@login_required
-def list_prices(request):
-    query = request.GET.get('q')
-    if query:
-        prices_list = VegetablePrice.objects.filter(vegetable__name__icontains=query)
-    else:
-        prices_list = VegetablePrice.objects.all()
-
-    paginator = Paginator(prices_list, 10)  # 10 items per page
-    page_number = request.GET.get('page')
-    try:
-        prices = paginator.get_page(page_number)
-    except PageNotAnInteger:
-        prices = paginator.page(1)
-    except EmptyPage:
-        prices = paginator.page(paginator.num_pages)
-
-    return render(request, 'vegetables_prices/list.html', {'prices': prices})
-
-@login_required
-def create_price(request):
     if request.method == 'POST':
-        form = VegetablePriceForm(request.POST)
+        form = PlantingCalculatorForm(request.POST)
         if form.is_valid():
-            # Validasi duplikasi (opsional)
-            if VegetablePrice.objects.filter(
-                vegetable=form.cleaned_data['vegetable'],
-                price=form.cleaned_data['price']
-            ).exists():
-                messages.error(request, 'Harga untuk sayur ini sudah ada.')
-            else:
-                form.save()
-                messages.success(request, 'Harga berhasil ditambahkan!')
-                return redirect('list_prices')
-        else:
-            messages.error(request, 'Terdapat kesalahan dalam formulir. Mohon periksa kembali.')
+            area_size = form.cleaned_data['area_size']
+            planting_distance = form.cleaned_data['planting_distance']
+
+            if area_size <= 0 or planting_distance <= 0:
+                return render(request, 'vegetables_prices/seeds_calculator.html', {
+                    'form': form,
+                    'vegetable': vegetable,
+                    'error_message': 'Luas lahan dan jarak tanam harus lebih dari 0.',
+                })
+
+            planting_distance_m = planting_distance / 100  # cm to meter
+            seeds_per_m2 = 1 / (planting_distance_m ** 2)
+            total_seeds = int(seeds_per_m2 * area_size)
+
+            # Redirect ke halaman hasil
+            return render(request, 'vegetables_prices/seed_calculator_result.html', {
+                'vegetable': vegetable,
+                'total_seeds': total_seeds,
+                'area_size': area_size,
+                'planting_distance': planting_distance,
+            })
     else:
-        form = VegetablePriceForm()
+        form = PlantingCalculatorForm()
 
-    return render(request, 'vegetables_prices/create.html', {'form': form})
-
-@login_required
-def delete_price(request, price_id):
-    if request.method == 'POST':
-        price = get_object_or_404(VegetablePrice, id=price_id)
-        price.delete()
-        messages.success(request, 'Harga berhasil dihapus!')
-    else:
-        messages.error(request, 'Hapus harga hanya diperbolehkan melalui metode POST.')
-    return redirect('list_prices')
-
-@login_required
-def vegetable_detail(request, vegetable_id):
-    vegetable = get_object_or_404(Vegetable, id=vegetable_id)
-    return render(request, 'vegetables_prices/vegetable_detail.html', {'vegetable': vegetable})
+    return render(request, 'vegetables_prices/seeds_calculator.html', {
+        'form': form,
+        'vegetable': vegetable,
+    })
 
 @login_required
 def planting_guide(request, vegetable_id):
     vegetable = get_object_or_404(Vegetable, id=vegetable_id)
-    return render(request, 'vegetables_prices/planting_guide.html', {'vegetable': vegetable})
+    guide = PlantingGuide.objects.filter(vegetable=vegetable).first()
+
+    return render(request, 'vegetables_prices/planting_guide.html', {
+        'vegetable': vegetable,
+        'planting_guide': guide
+    })
+
 
 @login_required
 def care_guide(request, vegetable_id):
     vegetable = get_object_or_404(Vegetable, id=vegetable_id)
-    return render(request, 'vegetables_prices/care_guide.html', {'vegetable': vegetable})
 
-@login_required
-def calculate_seeds(request, vegetable_id):
-    vegetable = get_object_or_404(Vegetable, id=vegetable_id)
+    guide = CareGuide.objects.filter(vegetable=vegetable).first()
 
-    if request.method == 'POST':
-        area = request.POST.get('area')
-        if not area or not area.isdigit():
-            messages.error(request, 'Input area tidak valid. Harap masukkan angka positif.')
-        else:
-            area = float(area)
-            if area <= 0:
-                messages.error(request, 'Luas area harus lebih dari 0!')
-            else:
-                spacing = {'bayam': 0.5, 'cabai': 0.6, 'daun_bawang': 0.15}.get(vegetable.name.lower(), 0)
-                if spacing == 0:
-                    messages.error(request, 'Jarak tanam untuk sayur ini tidak tersedia.')
-                else:
-                    seeds = (area / spacing) ** 2
-                    return render(request, 'vegetables_prices/seeds_result.html', {
-                        'vegetable': vegetable,
-                        'seeds': int(seeds)
-                    })
-
-    return render(request, 'vegetables_prices/seeds_calculator.html', {'vegetable': vegetable})
-
-@login_required
-def price_list(request, vegetable_id):
-    vegetable = get_object_or_404(Vegetable, id=vegetable_id)
-    prices = VegetablePrice.objects.filter(vegetable=vegetable).select_related('vegetable').order_by('-updated_at')
-
-    return render(request, 'vegetables_prices/price_list.html', {'vegetable': vegetable, 'prices': prices})
+    return render(request, 'vegetables_prices/care_guide.html', {
+        'vegetable': vegetable,
+        'care_guide': guide
+    })

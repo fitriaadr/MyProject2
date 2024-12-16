@@ -2,10 +2,16 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('vegetable-detail/<int:vegetable_id>/', views.vegetable_detail, name='vegetable_detail'),
-    path('planting-guide/<int:vegetable_id>/', views.planting_guide, name='planting_guide'),
-    path('care-guide/<int:vegetable_id>/', views.care_guide, name='care_guide'),
-    path('calculate-seeds/<int:vegetable_id>/', views.calculate_seeds, name='calculate_seeds'),
-    path('price-list/<int:vegetable_id>/', views.price_list, name='price_list'),
-    path('<int:vegetable_id>/', views.vegetable_detail, name='vegetable_detail'),
+    path('', views.VegetableListView.as_view(), name='vegetable_list'),
+    path('create/', views.VegetableCreateView.as_view(), name='vegetable_create'),
+    path('<int:pk>/update/', views.VegetableUpdateView.as_view(), name='vegetable_update'),
+    path('<int:pk>/', views.VegetableDetailView.as_view(), name='vegetable_detail'),
+
+    # Price & Seed Calculator
+    path('<int:pk>/price/create/', views.VegetablePriceCreateView.as_view(), name='vegetable_price_create'),
+
+    # Planting and Care Guides
+    path('<int:vegetable_id>/planting-guide/', views.planting_guide, name='planting_guide'),
+    path('<int:vegetable_id>/care-guide/', views.care_guide, name='care_guide'),
+    path('<int:vegetable_id>/calculate-seeds/', views.calculate_seed, name='calculate_seeds'),
 ]

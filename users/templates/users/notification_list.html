@@ -14,11 +14,20 @@
 
         <div class="list-group">
             {% for notification in notifications %}
-            <div class="list-group-item list-group-item-action">
-                <h5 class="mb-2">{{ notification.title }}</h5>
-                <p class="mb-1">{{ notification.message }}</p>
-                <small class="text-muted">Dikirim pada {{ notification.created_at }}</small>
-            </div>
+                <div class="list-group-item list-group-item-action">
+                    <h5 class="mb-2">
+                        <span class="badge bg-info text-dark">Notifikasi</span>
+                        {{ notification.title }}
+                    </h5>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <small class="text-muted">
+                        Dikirim pada {{ notification.created_at|date:"d M Y, H:i" }}
+                    </small>
+                </div>
+            {% empty %}
+                <div class="list-group-item">
+                    <p class="text-center text-muted">Tidak ada notifikasi.</p>
+                </div>
             {% endfor %}
         </div>
 

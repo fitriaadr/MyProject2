@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAVOGREEN Community</title>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .card {
+            max-width: 600px;
+            margin: auto;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card img {
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .btn-upload {
+            font-weight: bold;
+        }
+
+        .comments-section h6 {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .btn-danger, .btn-primary {
+            margin-right: 5px;
+        }
+
+        .pagination .page-link {
+            color: #28a745;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .pagination .page-link:hover {
+            color: white;
+            background-color: #218838;
+        }
+        .navbar-nav .nav-link {
+        color: #333;
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #28a745;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    /* Active Link Styling */
+    .navbar-nav .nav-link.active {
+        color: #28a745;
+        font-weight: bold;
+    }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+    <div class="container-fluid">
+        <!-- Brand Logo -->
+        <a class="navbar-brand" href="#" style="color: #28a745; font-weight: bold;">SAVOGREEN</a>
+        <!-- Navbar Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'user_dashboard' %}">DASHBOARD</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact_admin' %}">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vegetable_guide' %}">Vegetable Guide</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <!-- Header -->
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">SAVOGREEN Community</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <p class="text-muted">Share your Gardening journey with Community!</p>
+            <a href="{% url 'upload_post' %}" class="btn btn-success btn-upload">Upload</a>
+        </div>
+
+        <!-- Loop untuk Menampilkan Postingan -->
+        {% for post in page_obj %}
+        <div class="card mb-4">
+            <img src="{{ post.image.url }}" class="card-img-top"
+                style="width: 100%; height: 400px; object-fit: cover;"
+                alt="Picture by {{ post.user.username }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.user.username }}</h5>
+                <p class="card-text">{{ post.caption }}</p>
+                <small class="text-muted d-block mb-3">Shared at {{ post.created_at|date:"d M Y, H:i" }}</small>
+
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-danger like-btn" data-post-id="{{ post.id }}">
+                        ❤️ Like (<span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>)
+                    </button>
+                </div>
+
+                <!-- Komentar -->
+                <div class="comments-section mt-3">
+                    <h6>Comments:</h6>
+                    <ul class="list-unstyled mb-2">
+                        {% for comment in post.comments.all %}
+                        <li><strong>{{ comment.user.username }}</strong>: {{ comment.content }}</li>
+                        {% empty %}
+                        <li><em>No comments yet.</em></li>
+                        {% endfor %}
+                    </ul>
+                    <form method="POST" action="{% url 'add_comment' post.id %}">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <label for="comment-{{ post.id }}" class="visually-hidden">Comments</label>
+                            <input type="text" id="comment-{{ post.id }}" name="content" class="form-control" placeholder="Write Comment..." required>
+                            <button class="btn btn-primary">Send</button>
+                        </div>
+                    </form>
+                </div>
+
+                {% if request.user == post.user %}
+                <!-- Tombol Hapus -->
+                <form method="POST" action="{% url 'delete_post' post.id %}" class="mt-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Prev</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.like-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const postId = this.getAttribute('data-post-id');
+                    const likeCountElement = document.getElementById(`like-count-${postId}`);
+                    const csrfToken = '{{ csrf_token }}';
+
+                    this.disabled = true;
+
+                    fetch(`/community/like/${postId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if ('likes_count' in data) {
+                            likeCountElement.textContent = data.likes_count;
+                        } else {
+                            console.error('likes_count tidak ditemukan di respons JSON.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Something went wrong. Please try again.');
+                    })
+                    .finally(() => {
+                        this.disabled = false;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

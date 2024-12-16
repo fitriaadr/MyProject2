@@ -7,47 +7,187 @@
     <title>{{ vegetable.name }}</title>
     <!-- Bootstrap CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        /* Background Styling */
+        body {
+            position: relative;
+            background: url('{% static "images/hero-background.jpg" %}') no-repeat center center / cover fixed;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Overlay hitam semi-transparan */
+            z-index: -1;
+        }
+
+        /* Navbar Styling */
+        .navbar-nav .nav-link {
+            color: #fff; /* Warna teks putih */
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #28a745; /* Hijau saat di-hover */
+            background-color: #ffffff33; /* Warna transparan */
+            border-radius: 5px;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #28a745; /* Hijau untuk menu aktif */
+            font-weight: bold;
+        }
+
+        /* Button Styling */
+        .btn-custom {
+            color: #fff;
+            font-weight: bold;
+            background-color: rgba(40, 167, 69, 0.9);
+            border: none;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #28a745;
+            transform: translateY(-2px);
+        }
+
+        .btn-custom-primary {
+            color: #fff;
+            font-weight: bold;
+            background-color: rgba(0, 123, 255, 0.9);
+            border: none;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-custom-primary:hover {
+            background-color: #007bff;
+            transform: translateY(-2px);
+        }
+
+        /* Image Styling */
+        .vegetable-img {
+            display: block;
+            margin: 20px auto;
+            max-width: 250px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Card Styling */
+        .card {
+            background-color: #ffffff;
+            color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg" style="background-color: rgba(0, 0, 0, 0.7);">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" style="color: #28a745; font-weight: bold;">SAVOGREEN</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'user_dashboard' %}">DASHBOARD</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'user_profile' %}">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contact_admin' %}">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'vegetable_guide' %}">Vegetable Guide</a></li>
+                    {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                    </form>
+                </li>
+                {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Container -->
     <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h1 class="card-title text-center text-success">{{ vegetable.name }}</h1>
-                        <div class="text-center my-4">
-                            <img src="{{ vegetable.image.url }}" alt="{{ vegetable.name }}" class="img-fluid rounded" style="max-width: 300px;">
-                        </div>
-                        <p class="card-text text-justify">{{ vegetable.description }}</p>
+        <!-- Menu Terkait -->
+        <div class="mb-4 text-center">
+            <a href="{% url 'planting_guide' vegetable.id %}" class="btn btn-custom mx-2">Planting Guide</a>
+            <a href="{% url 'care_guide' vegetable.id %}" class="btn btn-custom-primary mx-2">Care Guide</a>
+        </div>
+
+        <!-- Vegetable Detail -->
+        <h1 class="section-title">{{ vegetable.name }}</h1>
+        {% if vegetable.image %}
+            <img src="{{ vegetable.image.url }}" alt="{{ vegetable.name }}" class="vegetable-img">
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header">{{ vegetable.name }}</div>
+            <div class="card-body">
+                <p>{{ vegetable.description }}</p>
+            </div>
+        </div>
+
+        <!-- Informasi Harga -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3 class="text-primary">Vegetable Prices</h3>
+                {% if price %}
+                    <p class="fw-bold">Price per kg: Rp {{ price.price_per_kg }}</p>
+                {% else %}
+                    <p class="text-danger">Prices doesn't uploaded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Kalkulasi Bibit -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="text-center text-success">Seeds Calculation</h3>
+                <form method="post" action="{% url 'calculate_seeds' vegetable.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="area-size" class="form-label">Area Size (m²):</label>
+                        <input type="number" class="form-control" id="area-size" name="area_size" placeholder="Ex: 20" required>
                     </div>
-                </div>
-
-                <div class="mt-4">
-                    <h3 class="text-center">Menu Terkait</h3>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <a href="{% url 'planting_guide' vegetable.id %}" class="text-decoration-none text-primary">Panduan Menanam</a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="{% url 'care_guide' vegetable.id %}" class="text-decoration-none text-primary">Panduan Perawatan</a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="{% url 'calculate_seeds' vegetable.id %}" class="text-decoration-none text-primary">Kalkulator Kebutuhan Bibit</a>
-                        </li>
-                        <li class="list-group-item">
-                            <a href="{% url 'price_list' vegetable.id %}" class="text-decoration-none text-primary">Informasi Harga</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="text-center mt-4">
-                    <a href="{% url 'vegetable_guide' %}" class="btn btn-secondary">Kembali ke Vegetable Guide</a>
-                </div>
+                    <div class="mb-3">
+                        <label for="planting-distance" class="form-label">Planting Distance (cm):</label>
+                        <input type="number" class="form-control" id="planting-distance" name="planting_distance" placeholder="Ex: 15" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Calculate</button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle with Popper -->
+    <!-- Bootstrap JS Bundle -->
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
 </body>
 </html>

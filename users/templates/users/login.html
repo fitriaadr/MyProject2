@@ -1,28 +1,25 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <!-- Bootstrap CSS -->
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h1 class="text-center mb-4">Login</h1>
-                <form method="post" class="p-4 border rounded shadow">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-success w-100">Login</button>
-                </form>
-            </div>
+{% extends 'base.html' %}
+
+{% block title %}Login - Savogreen{% endblock %}
+
+{% block content %}
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-lg p-4">
+            <h2 class="text-center mb-4">Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Login</button>
+            </form>
         </div>
     </div>
-
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
-</body>
-</html>
+</div>
+{% endblock %}

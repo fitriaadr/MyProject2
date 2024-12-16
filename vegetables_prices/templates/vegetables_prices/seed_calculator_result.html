@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Kalkulasi Bibit</title>
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navbar */
+        .navbar-brand {
+            color: #28a745 !important;
+            font-weight: bold;
+        }
+
+        .navbar-nav .nav-link {
+            color: #333;
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #28a745;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        .content-container {
+            margin-top: 50px;
+            padding: 30px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading */
+        h1 {
+            color: #28a745;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Results Section */
+        .result-item {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .result-item strong {
+            color: #333;
+        }
+
+        /* Buttons */
+        .btn-custom {
+            color: white;
+            background-color: #28a745;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">SAVOGREEN</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'user_dashboard' %}">DASHBOARD</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact_admin' %}">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vegetable_guide' %}">Vegetable Guide</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="content-container">
+        <h1>Seeds calculation for {{ vegetable.name }}</h1>
+        <hr>
+        <p class="result-item">Total Seeds: <strong>{{ total_seeds|default:"Data Not Found" }} biji</strong></p>
+        <p class="result-item">Area Size: <strong>{{ area_size|default:"Data Not Found" }} m²</strong></p>
+        <p class="result-item">Planting Distance: <strong>{{ planting_distance|default:"Data Not Found" }} cm</strong></p>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'calculate_seeds' vegetable.id %}" class="btn btn-custom">Recalculate</a>
+            <a href="{% url 'vegetable_guide' %}" class="btn btn-secondary">Vegetable Guide</a>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>

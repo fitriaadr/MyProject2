@@ -5,39 +5,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vegetable Guide</title>
-    {% load static %}
     <!-- Bootstrap CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body {
+            position: relative;
+            background: url('{% static "images/hero-background.jpg" %}') no-repeat center center / cover fixed;
+            font-family: Arial, sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Overlay gelap */
+            z-index: -1; /* Meletakkan overlay di belakang konten */
+        }
+
+        /* Container Styling */
+        .container {
+            margin-top: 50px;
+        }
+
+        /* Interactive Card Styling */
+        .interactive-card {
+            position: relative;
+            width: 250px;
+            height: 350px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: #ffffff; /* Default fallback */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .interactive-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .interactive-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .interactive-card:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Overlay Effect */
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 10px;
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .navbar-nav .nav-link {
+        color: #333; /* Warna default */
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #28a745; /* Warna hijau saat di-hover */
+        background-color: #f8f9fa; /* Background abu terang saat di-hover */
+        border-radius: 5px; /* Membuat sudut membulat */
+    }
+
+    /* Active Link Styling */
+    .navbar-nav .nav-link.active {
+        color: #28a745; /* Warna hijau untuk link aktif */
+        font-weight: bold;
+    }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Vegetable Guide</h1>
+<nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+    <div class="container-fluid">
+        <!-- Brand Logo -->
+        <a class="navbar-brand" href="#" style="color: #28a745; font-weight: bold;">SAVOGREEN</a>
+        <!-- Navbar Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'user_dashboard' %}">DASHBOARD</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact_admin' %}">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vegetable_guide' %}">Vegetable Guide</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+    <div class="container">
+        <h1 class="text-center mb-5 text-white">Vegetable Guide</h1>
 
         {% if vegetables %}
-        <div class="row">
+        <div class="d-flex flex-wrap justify-content-center gap-4">
             {% for vegetable in vegetables %}
-            <div class="col-6 col-sm-4 col-md-3 text-center mb-4">
-                <a href="{% url 'vegetable_detail' vegetable.id %}" class="text-decoration-none">
+            <a href="{% url 'vegetable_detail' vegetable.id %}" class="text-decoration-none">
+                <div class="interactive-card">
                     {% if vegetable.image %}
-                        <img src="{{ vegetable.image.url }}" alt="{{ vegetable.name }}" class="img-thumbnail" style="width: 100px; height: auto;">
+                        <img src="{{ vegetable.image.url }}" alt="{{ vegetable.name }}">
                     {% else %}
-                        <img src="{% static 'images/default_vegetable.jpg' %}" alt="Default Image" class="img-thumbnail" style="width: 100px; height: auto;">
+                        <img src="{% static 'images/default_vegetable.jpg' %}" alt="Default Vegetable">
                     {% endif %}
-                    <p class="mt-2 text-dark">{{ vegetable.name }}</p>
-                </a>
-            </div>
+                    <div class="card-overlay">{{ vegetable.name }}</div>
+                </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
         <p class="text-center text-muted">No vegetables available at the moment.</p>
         {% endif %}
+    </div> <!-- Penutup container utama -->
 
-        <div class="text-center mt-4">
-            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Kembali ke Dashboard</a>
+    <footer class="bg-dark text-white py-4">
+        <div class="container d-flex justify-content-center">
+            <p class="mb-0 text-center">&copy; 2024 SAVOGREEN. All Rights Reserved.</p>
         </div>
-    </div>
+    </footer>
 
-    <!-- Bootstrap JS Bundle with Popper -->
+    <!-- Bootstrap JS -->
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
 </body>
 </html>

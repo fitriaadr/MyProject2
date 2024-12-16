@@ -1,4 +1,10 @@
+{% extends 'base.html'%}
+
+{% block title %} Register-Savogreen {% endblock%}
+
+{% block content%}
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +15,7 @@
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container vh-100 d-flex justify-content-center align-items-center">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h1 class="text-center mb-4">Register</h1>
@@ -26,3 +32,5 @@
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
 </body>
 </html>
+
+{% endblock %}
